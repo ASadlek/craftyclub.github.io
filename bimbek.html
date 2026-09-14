@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pracownia Rękodzieła</title>
+
+    <!-- Font (opcjonalny, ładny nowoczesny krój) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+    <style>
+        /* =========================================================
+           ZMIENNE KOLORÓW — tu zmieniasz cały motyw (biało-fioletowy)
+           ========================================================= */
+        :root {
+            --purple-700: #6d28d9;
+            --purple-600: #7c3aed;
+            --purple-500: #8b5cf6;
+            --purple-400: #a78bfa;
+            --purple-100: #ede9fe;
+            --purple-50:  #f6f4ff;
+            --white:      #ffffff;
+            --ink:        #251a3d;
+            --muted:      #6f6788;
+            --shadow:     0 12px 34px rgba(124, 58, 237, .14);
+            --shadow-sm:  0 4px 14px rgba(124, 58, 237, .10);
+            --radius:     18px;
+            --maxw:       1100px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'Poppins', system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+            color: var(--ink);
+            background: var(--purple-50);
+            line-height: 1.65;
+        }
+
+        a { color: inherit; text-decoration: none; }
+        img { display: block; max-width: 100%; }
+
+        .wrap { max-width: var(--maxw); margin: 0 auto; padding: 0 1.5rem; }
+
+        /* =========================================================
+           NAWIGACJA
+           ========================================================= */
+        header {
+            position: sticky; top: 0; z-index: 100;
+            background: rgba(255, 255, 255, .82);
+            backdrop-filter: blur(14px);
+            border-bottom: 1px solid var(--purple-100);
+        }
+        .nav {
+            display: flex; align-items: center; gap: 1rem;
+            padding: .85rem 1.5rem;
+            max-width: var(--maxw); margin: 0 auto;
+        }
+        .brand {
+            display: flex; align-items: center; gap: .55rem;
+            font-weight: 700; font-size: 1.2rem; letter-spacing: -.02em;
+        }
+        .brand .mark {
+            width: 38px; height: 38px; display: grid; place-items: center;
+            border-radius: 12px; font-size: 1.1rem;
+            background: linear-gradient(135deg, var(--purple-600), var(--purple-400));
+            box-shadow: var(--shadow-sm);
+        }
+        .brand .name {
+            background: linear-gradient(135deg, var(--purple-700), var(--purple-400));
+            -webkit-background-clip: text; background-clip: text; color: transparent;
+        }
+        .tabs { display: flex; flex-wrap: wrap; gap: .3rem; margin-left: auto; }
+        .tab-btn {
+            border: none; cursor: pointer; font: inherit; font-weight: 500;
+            padding: .5rem .95rem; border-radius: 999px;
+            background: transparent; color: var(--muted);
+            transition: all .18s ease;
+        }
+        .tab-btn:hover { background: var(--purple-100); color: var(--purple-700); }
+        .tab-btn.active {
+            color: var(--white);
+            background: linear-gradient(135deg, var(--purple-600), var(--purple-500));
+            box-shadow: var(--shadow-sm);
+        }
+
+        /* =========================================================
+           SEKCJE (przełączane JS-em)
+           ========================================================= */
+        .section { display: none; animation: fade .45s ease; }
+        .section.active { display: block; }
+        @keyframes fade { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+
+        /* =========================================================
+           HERO / STRONA POWITALNA
+           ========================================================= */
+        .hero {
+            background: linear-gradient(135deg, var(--purple-600), var(--purple-400));
+            color: var(--white); text-align: center;
+            padding: 5rem 1.5rem 6rem;
+            position: relative; overflow: hidden;
+        }
+        .hero::after {
+            content: ""; position: absolute; inset: auto 0 -1px 0; height: 60px;
+            background: var(--purple-50);
+            clip-path: polygon(0 100%, 100% 100%, 100% 0);
+        }
+        .hero h1 { font-size: clamp(2rem, 5vw, 3.4rem); line-height: 1.1; letter-spacing: -.03em; }
+        .hero p { max-width: 620px; margin: 1.1rem auto 0; font-size: 1.1rem; opacity: .95; }
+
+        /* Karty na stronie głównej */
+        .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.4rem; margin: -3rem auto 4rem; position: relative; z-index: 2; }
+        .card {
+            background: var(--white); border-radius: var(--radius); overflow: hidden;
+            box-shadow: var(--shadow); cursor: pointer; transition: transform .2s ease, box-shadow .2s ease;
+        }
+        .card:hover { transform: translateY(-6px); box-shadow: 0 18px 44px rgba(124,58,237,.22); }
+        .card img { height: 170px; width: 100%; object-fit: cover; }
+        .card .card-body { padding: 1.2rem 1.3rem 1.5rem; }
+        .card h3 { font-size: 1.2rem; margin-bottom: .3rem; }
+        .card p { color: var(--muted); font-size: .95rem; }
+        .card .more { display: inline-block; margin-top: .8rem; font-weight: 600; color: var(--purple-600); }
+
+        /* =========================================================
+           SEKCJE ZAJĘĆ (wspólny układ)
+           ========================================================= */
+        .page { padding: 3.5rem 0 4.5rem; }
+        .eyebrow {
+            display: inline-block; font-size: .8rem; font-weight: 600; letter-spacing: .12em;
+            text-transform: uppercase; color: var(--purple-600);
+            background: var(--purple-100); padding: .35rem .8rem; border-radius: 999px;
+        }
+        .page h2 { font-size: clamp(1.8rem, 4vw, 2.6rem); letter-spacing: -.02em; margin: .9rem 0 .6rem; }
+        .lead { color: var(--muted); max-width: 720px; font-size: 1.08rem; }
+
+        .block { margin-top: 3rem; }
+        .block h3 { font-size: 1.35rem; margin-bottom: 1rem; display: flex; align-items: center; gap: .5rem; }
+        .block h3::before { content: ""; width: 8px; height: 22px; border-radius: 4px; background: linear-gradient(var(--purple-600), var(--purple-400)); }
+
+        /* Wideo (responsywne 16:9) */
+        .video-frame {
+            position: relative; width: 100%; aspect-ratio: 16 / 9;
+            border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow);
+        }
+        .video-frame iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+
+        /* Galeria zdjęć z podpisami */
+        .gallery { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.3rem; }
+        figure {
+            background: var(--white); border-radius: var(--radius); overflow: hidden;
+            box-shadow: var(--shadow-sm); transition: transform .2s ease;
+        }
+        figure:hover { transform: translateY(-4px); }
+        figure img { height: 210px; width: 100%; object-fit: cover; }
+        figcaption { padding: .85rem 1rem; font-size: .92rem; color: var(--muted); }
+
+        /* Tabela materiałów */
+        .table-wrap { overflow-x: auto; border-radius: var(--radius); box-shadow: var(--shadow-sm); background: var(--white); }
+        table { width: 100%; border-collapse: collapse; min-width: 460px; }
+        thead th {
+            text-align: left; font-size: .82rem; letter-spacing: .06em; text-transform: uppercase;
+            color: var(--white); padding: .95rem 1.2rem;
+            background: linear-gradient(135deg, var(--purple-600), var(--purple-500));
+        }
+        tbody td { padding: .9rem 1.2rem; border-bottom: 1px solid var(--purple-100); font-size: .96rem; }
+        tbody tr:last-child td { border-bottom: none; }
+        tbody tr:nth-child(even) { background: var(--purple-50); }
+        .pill { display: inline-block; padding: .2rem .7rem; border-radius: 999px; font-size: .8rem; font-weight: 600; }
+        .pill.yes { background: #e7f9ee; color: #1a8f4c; }
+        .pill.no  { background: #fdecec; color: #cf3b3b; }
+
+        /* Miniatura materiału w tabeli */
+        .mat-thumb {
+            width: 64px; height: 64px; border-radius: 12px;
+            object-fit: cover; box-shadow: var(--shadow-sm);
+            cursor: zoom-in; transition: transform .15s ease;
+        }
+        .mat-thumb:hover { transform: scale(1.06); }
+
+        /* Polecane sklepy */
+        .shops { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 1rem; }
+        .shop {
+            display: flex; align-items: center; gap: .85rem;
+            background: var(--white); border-radius: var(--radius);
+            padding: 1rem 1.2rem; box-shadow: var(--shadow-sm);
+            transition: transform .2s ease, box-shadow .2s ease;
+        }
+        .shop:hover { transform: translateY(-4px); box-shadow: var(--shadow); }
+        .shop .shop-ico {
+            width: 46px; height: 46px; flex: none; display: grid; place-items: center;
+            border-radius: 12px; font-size: 1.35rem; background: var(--purple-100);
+        }
+        .shop .shop-meta { display: flex; flex-direction: column; font-weight: 600; }
+        .shop .shop-meta small { color: var(--muted); font-weight: 500; font-size: .82rem; }
+        .shop:hover .shop-meta { color: var(--purple-700); }
+
+        /* Powiększenie zdjęcia materiału (lightbox) */
+        .lightbox {
+            position: fixed; inset: 0; z-index: 200;
+            display: none; place-items: center; padding: 1.5rem;
+            background: rgba(37, 26, 61, .78); backdrop-filter: blur(6px);
+            cursor: zoom-out;
+        }
+        .lightbox.open { display: grid; animation: fade .25s ease; }
+        .lightbox img {
+            max-width: min(94vw, 900px); max-height: 90vh; width: auto; height: auto;
+            border-radius: var(--radius); box-shadow: 0 24px 60px rgba(0, 0, 0, .45);
+        }
+        .lightbox .lb-close {
+            position: absolute; top: 1.1rem; right: 1.3rem;
+            width: 44px; height: 44px; border: none; cursor: pointer;
+            border-radius: 999px; font-size: 1.35rem; line-height: 1;
+            background: rgba(255, 255, 255, .9); color: var(--ink); box-shadow: var(--shadow-sm);
+        }
+        .lightbox .lb-close:hover { background: var(--white); }
+
+        /* =========================================================
+           STOPKA
+           ========================================================= */
+        footer { background: var(--ink); color: #cfc7e6; padding: 2.5rem 0; margin-top: 2rem; }
+        footer .wrap { display: flex; flex-wrap: wrap; gap: 1rem; align-items: center; justify-content: space-between; }
+        footer a { color: var(--purple-400); font-weight: 500; }
+
+        @media (max-width: 640px) {
+            .brand .name { display: none; }
+            .nav { gap: .5rem; }
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- ============ NAWIGACJA ============ -->
+<header>
+    <nav class="nav">
+        <a class="brand" data-tab="home">
+            <span class="mark">🎨</span>
+            <span class="name">Pracownia Rękodzieła</span>
+        </a>
+        <div class="tabs">
+            <button class="tab-btn active" data-tab="home">Start</button>
+            <button class="tab-btn" data-tab="szycie">Szycie</button>
+            <button class="tab-btn" data-tab="dzierganie">Dzierganie</button>
+            <button class="tab-btn" data-tab="ceramika">Ceramika</button>
+            <button class="tab-btn" data-tab="witraz">Witraż</button>
+            <button class="tab-btn" data-tab="linoryt">Linoryt</button>
+            <button class="tab-btn" data-tab="wyszywanie">Wyszywanie</button>
+        </div>
+    </nav>
+</header>
+
+<main>
+
+    <!-- ============ STRONA POWITALNA ============ -->
+    <section id="home" class="section active">
+        <div class="hero">
+            <h1>Twórz razem ze mną</h1>
+            <p>Kameralne zajęcia artystyczne dla znajomych — szycie, dzierganie i ceramika.
+                Wybierz zakładkę, obejrzyj materiały wideo i sprawdź, co przygotować na spotkanie.</p>
+        </div>
+
+        <div class="wrap">
+            <div class="cards">
+                <article class="card" data-tab="szycie">
+                    <img src="https://picsum.photos/seed/szycie-hero/600/400" alt="Szycie" />
+                    <div class="card-body">
+                        <h3>✂️ Szycie</h3>
+                        <p>Od podstaw obsługi maszyny po pierwsze własne projekty z tkanin.</p>
+                        <span class="more">Przejdź do zakładki →</span>
+                    </div>
+                </article>
+                <article class="card" data-tab="dzierganie">
+                    <img src="https://picsum.photos/seed/dzierganie-hero/600/400" alt="Dzierganie" />
+                    <div class="card-body">
+                        <h3>🧶 Dzierganie</h3>
+                        <p>Druty, szydełko i włóczka — ciepłe projekty na spokojne wieczory.</p>
+                        <span class="more">Przejdź do zakładki →</span>
+                    </div>
+                </article>
+                <article class="card" data-tab="ceramika">
+                    <img src="https://picsum.photos/seed/ceramika-hero/600/400" alt="Ceramika" />
+                    <div class="card-body">
+                        <h3>🏺 Ceramika</h3>
+                        <p>Praca z gliną, toczenie na kole i szkliwienie własnych naczyń.</p>
+                        <span class="more">Przejdź do zakładki →</span>
+                    </div>
+                </article>
+                <article class="card" data-tab="witraz">
+                    <img src="https://picsum.photos/seed/witraz-hero/600/400" alt="Witraż" />
+                    <div class="card-body">
+                        <h3>🪟 Witraż</h3>
+                        <p>Kolorowe szkło, taśma miedziana i lutowanie własnych witraży.</p>
+                        <span class="more">Przejdź do zakładki →</span>
+                    </div>
+                </article>
+                <article class="card" data-tab="linoryt">
+                    <img src="https://picsum.photos/seed/linoleum-hero/600/400" alt="Linoryt" />
+                    <div class="card-body">
+                        <h3>🖨️ Linoryt</h3>
+                        <p>Linoryt od projektu po własnoręcznie odbitą grafikę na papierze.</p>
+                        <span class="more">Przejdź do zakładki →</span>
+                    </div>
+                </article>
+                <article class="card" data-tab="wyszywanie">
+                    <img src="https://picsum.photos/seed/wyszywanie-hero/600/400" alt="Wyszywanie" />
+                    <div class="card-body">
+                        <h3>🪡 Wyszywanie</h3>
+                        <p>Haft dla relaksu — ściegi ozdobne i kolorowe motywy w tamborku.</p>
+                        <span class="more">Przejdź do zakładki →</span>
+                    </div>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============ SZYCIE ============ -->
+    <section id="szycie" class="section">
+        <div class="wrap page">
+            <span class="eyebrow">Zajęcia</span>
+            <h2>Szycie</h2>
+            <p class="lead">Wprowadzenie do świata igły i nitki. Na zajęciach oswoimy maszynę do szycia,
+                nauczymy się prowadzić prosty ścieg i uszyjemy pierwszy drobny projekt — od wykroju po gotowy element.</p>
+
+            <div class="block">
+                <h3>Materiał wideo</h3>
+                <div class="video-frame">
+                    <iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ"
+                            title="Wprowadzenie do szycia" allowfullscreen loading="lazy"></iframe>
+                </div>
+            </div>
+
+            <div class="block">
+                <h3>Galeria</h3>
+                <div class="gallery">
+                    <figure>
+                        <img src="https://picsum.photos/seed/szycie1/600/450" alt="Maszyna do szycia" />
+                        <figcaption>Nasza maszyna do szycia gotowa do pracy.</figcaption>
+                    </figure>
+                    <figure>
+                        <img src="https://picsum.photos/seed/szycie2/600/450" alt="Kolorowe tkaniny" />
+                        <figcaption>Wybór tkanin bawełnianych na projekty.</figcaption>
+                    </figure>
+                    <figure>
+                        <img src="https://picsum.photos/seed/szycie3/600/450" alt="Nici i akcesoria" />
+                        <figcaption>Nici, szpilki i drobne akcesoria krawieckie.</figcaption>
+                    </figure>
+                </div>
+            </div>
+
+            <div class="block">
+                <h3>Lista materiałów</h3>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                        <tr><th>Zdjęcie</th><th>Materiał</th><th>Ilość</th><th>Zapewniam</th></tr>
+                        </thead>
+                        <tbody>
+                        <tr><td><img class="mat-thumb" src="https://picsum.photos/seed/mat-tkanina/120/120" alt="Tkanina bawełniana" /></td><td>Tkanina bawełniana</td><td>0,5 m</td><td><span class="pill yes">Tak</span></td></tr>
+                        <tr><td><img class="mat-thumb" src="https://picsum.photos/seed/mat-nici/120/120" alt="Nici pasujące kolorem" /></td><td>Nici pasujące kolorem</td><td>1 szpulka</td><td><span class="pill yes">Tak</span></td></tr>
+                        <tr><td><img class="mat-thumb" src="https://picsum.photos/seed/mat-igly/120/120" alt="Igły do maszyny" /></td><td>Igły do maszyny</td><td>komplet</td><td><span class="pill yes">Tak</span></td></tr>
+                        <tr><td><img class="mat-thumb" src="https://picsum.photos/seed/mat-nozyczki/120/120" alt="Nożyczki krawieckie" /></td><td>Nożyczki krawieckie</td><td>1 szt.</td><td><span class="pill no">Weź swoje</span></td></tr>
+                        <tr><td><img class="mat-thumb" src="https://picsum.photos/seed/mat-szpilki/120/120" alt="Szpilki krawieckie" /></td><td>Szpilki krawieckie</td><td>20 szt.</td><td><span class="pill yes">Tak</span></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="block">
+                <h3>Polecane sklepy</h3>
+                <div class="shops">
+                    <a class="shop" href="https://www.swiattkanin.pl" target="_blank" rel="noopener">
+                        <span class="shop-ico">🧵</span>
+                        <span class="shop-meta">Świat Tkanin<small>Bawełny, lny i dodatki</small></span>
+                    </a>
+                    <a class="shop" href="https://www.strefakrawiectwa.pl" target="_blank" rel="noopener">
+                        <span class="shop-ico">✂️</span>
+                        <span class="shop-meta">Strefa Krawiectwa<small>Nici, igły, akcesoria</small></span>
+                    </a>
+                    <a class="shop" href="https://www.guziczek.pl" target="_blank" rel="noopener">
+                        <span class="shop-ico">📏</span>
+                        <span class="shop-meta">Guziczek<small>Pasmanteria online</small></span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============ DZIERGANIE ============ -->
+    <section id="dzierganie" class="section">
+        <div class="wrap page">
+            <span class="eyebrow">Zajęcia</span>
+            <h2>Dzierganie</h2>
+            <p class="lead">Spokojne, relaksujące spotkania z włóczką. Poznamy podstawowe oczka,
+                nauczymy się nabierać i zamykać rządki, a z czasem stworzymy własny szalik lub czapkę.</p>
+
+            <div class="block">
+                <h3>Materiał wideo</h3>
+                <div class="video-frame">
+                    <iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ"
+                            title="Wprowadzenie do dziergania" allowfullscreen loading="lazy"></iframe>
+                </div>
+            </div>
+
+            <div class="block">
+                <h3>Galeria</h3>
+                <div class="gallery">
+                    <figure>
+                        <img src="https://picsum.photos/seed/dzierganie1/600/450" alt="Kłębki włóczki" />
+                        <figcaption>Miękka wełna w kilku odcieniach fioletu.</figcaption>
+                    </figure>
+                    <figure>
+                        <img src="https://picsum.photos/seed/dzierganie2/600/450" alt="Druty i robótka" />
+                        <figcaption>Robótka w trakcie — pierwsze rządki.</figcaption>
+                    </figure>
+                    <figure>
+                        <img src="https://picsum.photos/seed/dzierganie3/600/450" alt="Gotowy szalik" />
+                        <figcaption>Efekt końcowy: ciepły, ręcznie robiony szalik.</figcaption>
+                    </figure>
+                </div>
+            </div>
+
+            <div class="block">
+                <h3>Lista materiałów</h3>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                        <tr><th>Zdjęcie</th><th>Materiał</th><th>Ilość</th><th>Zapewniam</th></tr>
+                        </thead>
+                        <tbody>
+                        <tr><td><img class="mat-thumb" src="https://picsum.photos/seed/mat-wloczka/120/120" alt="Włóczka" /></td><td>Włóczka (wełna/akryl)</td><td>2 motki</td><td><span class="pill yes">Tak</span></td></tr>
+                        <tr><td><img class="mat-thumb" src="https://picsum.photos/seed/mat-druty/120/120" alt="Druty" /></td><td>Druty 5 mm</td><td>1 para</td><td><span class="pill yes">Tak</span></td></tr>
+                        <tr><td><img class="mat-thumb" src="https://picsum.photos/seed/mat-szydelko/120/120" alt="Szydełko" /></td><td>Szydełko 4 mm</td><td>1 szt.</td><td><span class="pill yes">Tak</span></td></tr>
+                        <tr><td><img class="mat-thumb" src="https://picsum.photos/seed/mat-markery/120/120" alt="Markery oczek" /></td><td>Markery oczek</td><td>kilka</td><td><span class="pill yes">Tak</span></td></tr>
+                        <tr><td><img class="mat-thumb" src="https://picsum.photos/seed/mat-igla/120/120" alt="Igła do zszywania" /></td><td>Igła do zszywania</td><td>1 szt.</td><td><span class="pill no">Weź swoją</span></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="block">
+                <h3>Polecane sklepy</h3>
+                <div class="shops">
+                    <a class="shop" href="https://www.welnianyzakatek.pl" target="_blank" rel="noopener">
+                        <span class="shop-ico">🧶</span>
+                        <span class="shop-meta">Wełniany Zakątek<small>Włóczki i wełny naturalne</small></span>
+                    </a>
+                    <a class="shop" href="https://www.druciki.pl" target="_blank" rel="noopener">
+                        <span class="shop-ico">🪡</span>
+                        <span class="shop-meta">Druciki.pl<small>Druty i szydełka</small></span>
+                    </a>
+                    <a class="shop" href="https://www.klebek.pl" target="_blank" rel="noopener">
+                        <span class="shop-ico">🎨</span>
+                        <span class="shop-meta">Kłębek<small>Włóczki i akcesoria</small></span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============ CERAMIKA ============ -->
+    <section id="ceramika" class="section">
+        <div class="wrap page">
+            <span class="eyebrow">Zajęcia</span>
+            <h2>Ceramika</h2>
+            <p class="lead">Praca z gliną angażuje wszystkie zmysły. Nauczymy się wałkować i formować glinę,
+                spróbujemy toczenia na kole garncarskim, a na kolejnym spotkaniu ozdobimy i oszkliwimy nasze naczynia.</p>
+
+            <div class="block">
+                <h3>Materiał wideo</h3>
+                <div class="video-frame">
+                    <iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ"
+                            title="Wprowadzenie do ceramiki" allowfullscreen loading="lazy"></iframe>
+                </div>
+            </div>
+
+            <div class="block">
+                <h3>Galeria</h3>
+                <div class="gallery">
+                    <figure>
+                        <img src="https://picsum.photos/seed/ceramika1/600/450" alt="Glina" />
+                        <figcaption>Świeża glina gotowa do formowania.</figcaption>
+                    </figure>
+                    <figure>
+                        <img src="https://picsum.photos/seed/ceramika2/600/450" alt="Koło garncarskie" />
+                        <figcaption>Toczenie miski na kole garncarskim.</figcaption>
+                    </figure>
+                    <figure>
+                        <img src="https://picsum.photos/seed/ceramika3/600/450" alt="Gotowe naczynia" />
+                        <figcaption>Wypalone i oszkliwione prace uczestników.</figcaption>
+                    </figure>
+                </div>
+            </div>
+
+            <div class="block">
+                <h3>Lista materiałów</h3>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                        <tr><th>Zdjęcie</th><th>Materiał</th><th>Ilość</th><th>Zapewniam</th></tr>
+                        </thead>
+                        <tbody>
+                        <tr><td><img class="mat-thumb" src="https://picsum.photos/seed/mat-glina/120/120" alt="Glina" /></td><td>Glina samoutwardzalna / do wypału</td><td>1 kg</td><td><span class="pill yes">Tak</span></td></tr>
+                        <tr><td><img class="mat-thumb" src="https://picsum.photos/seed/mat-narzedzia/120/120" alt="Narzędzia do modelowania" /></td><td>Narzędzia do modelowania</td><td>komplet</td><td><span class="pill yes">Tak</span></td></tr>
+                        <tr><td><img class="mat-thumb" src="https://picsum.photos/seed/mat-szkliwo/120/120" alt="Szkliwo" /></td><td>Szkliwo</td><td>wg projektu</td><td><span class="pill yes">Tak</span></td></tr>
+                        <tr><td><img class="mat-thumb" src="https://picsum.photos/seed/mat-fartuch/120/120" alt="Fartuch ochronny" /></td><td>Fartuch ochronny</td><td>1 szt.</td><td><span class="pill no">Weź swój</span></td></tr>
+                        <tr><td><img class="mat-thumb" src="https://picsum.photos/seed/mat-piec/120/120" alt="Dostęp do pieca / koła" /></td><td>Dostęp do pieca / koła</td><td>—</td><td><span class="pill yes">Tak</span></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="block">
+                <h3>Polecane sklepy</h3>
+                <div class="shops">
+                    <a class="shop" href="https://www.ceramikaart.pl" target="_blank" rel="noopener">
+                        <span class="shop-ico">🏺</span>
+                        <span class="shop-meta">Ceramika Art<small>Gliny i masy ceramiczne</small></span>
+                    </a>
+                    <a class="shop" href="https://www.swiatgliny.pl" target="_blank" rel="noopener">
+                        <span class="shop-ico">🔧</span>
+                        <span class="shop-meta">Świat Gliny<small>Narzędzia garncarskie</small></span>
+                    </a>
+                    <a class="shop" href="https://www.glazurapro.pl" target="_blank" rel="noopener">
+                        <span class="shop-ico">🎨</span>
+                        <span class="shop-meta">Glazura Pro<small>Szkliwa i angoby</small></span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============ WITRAŻ ============ -->
+    <section id="witraz" class="section">
+        <div class="wrap page">
+            <span class="eyebrow">Zajęcia</span>
+            <h2>Witraż</h2>
+            <p class="lead">Sztuka układania kolorowego szkła. Poznamy technikę Tiffany'ego, nauczymy się ciąć szkło,
+                oklejać je taśmą miedzianą i lutować własny witrażowy wisiorek lub niewielki obrazek.</p>
+
+            <div class="block">
+                <h3>Materiał wideo</h3>
+                <div class="video-frame">
+                    <iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ"
+                            title="Wprowadzenie do witrażu" allowfullscreen loading="lazy"></iframe>
+                </div>
+            </div>
+
+            <div class="block">
+                <h3>Galeria</h3>
+                <div class="gallery">
+                    <figure>
+                        <img src="https://picsum.photos/seed/witraz1/600/450" alt="Kolorowe szkło" />
+                        <figcaption>Kolorowe szkło witrażowe w wielu odcieniach.</figcaption>
+                    </figure>
+                    <figure>
+                        <img src="https://picsum.photos/seed/witraz2/600/450" alt="Cięcie szkła" />
+                        <figcaption>Cięcie szkła wg przygotowanego wzoru.</figcaption>
+                    </figure>
+                    <figure>
+                        <img src="https://picsum.photos/seed/witraz3/600/450" alt="Gotowy witraż" />
+                        <figcaption>Gotowy witraż mieniący się w świetle.</figcaption>
+                    </figure>
+                </div>
+            </div>
+
+            <div class="block">
+                <h3>Lista materiałów</h3>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                        <tr><th>Zdjęcie</th><th>Materiał</th><th>Ilość</th><th>Zapewniam</th></tr>
+                        </thead>
+                        <tbody>
+                        <tr><td><img class="mat-thumb" src="https://picsum.photos/seed/mat-szklo/120/120" alt="Szkło witrażowe" /></td><td>Szkło witrażowe</td><td>kilka kolorów</td><td><span class="pill yes">Tak</span></td></tr>
+                        <tr><td><img class="mat-thumb" src="https://picsum.photos/seed/mat-nozszkla/120/120" alt="Nóż do szkła" /></td><td>Nóż do szkła</td><td>1 szt.</td><td><span class="pill yes">Tak</span></td></tr>
+                        <tr><td><img class="mat-thumb" src="https://picsum.photos/seed/mat-tasma/120/120" alt="Taśma miedziana" /></td><td>Taśma miedziana</td><td>1 rolka</td><td><span class="pill yes">Tak</span></td></tr>
+                        <tr><td><img class="mat-thumb" src="https://picsum.photos/seed/mat-lutownica/120/120" alt="Lutownica i cyna" /></td><td>Lutownica i cyna</td><td>komplet</td><td><span class="pill yes">Tak</span></td></tr>
+                        <tr><td><img class="mat-thumb" src="https://picsum.photos/seed/mat-rekawice/120/120" alt="Rękawice ochronne" /></td><td>Rękawice ochronne</td><td>1 para</td><td><span class="pill no">Weź swoje</span></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="block">
+                <h3>Polecane sklepy</h3>
+                <div class="shops">
+                    <a class="shop" href="https://www.tiffanyglass.pl" target="_blank" rel="noopener">
+                        <span class="shop-ico">🪟</span>
+                        <span class="shop-meta">Tiffany Glass<small>Szkło witrażowe</small></span>
+                    </a>
+                    <a class="shop" href="https://www.witraze.pl" target="_blank" rel="noopener">
+                        <span class="shop-ico">🔧</span>
+                        <span class="shop-meta">Witraże.pl<small>Narzędzia i taśmy</small></span>
+                    </a>
+                    <a class="shop" href="https://www.glasspol.pl" target="_blank" rel="noopener">
+                        <span class="shop-ico">✨</span>
+                        <span class="shop-meta">Glasspol<small>Lut, patyna, folie</small></span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============ LINORYT ============ -->
+    <section id="linoryt" class="section">
+        <div class="wrap page">
+            <span class="eyebrow">Zajęcia</span>
+            <h2>Linoryt</h2>
+            <p class="lead">Grafika warsztatowa w technice linorytu. Zaprojektujemy prosty wzór, wytniemy go w macie
+                linoleum, a następnie odbijemy własnoręcznie zrobioną grafikę na papierze.</p>
+
+            <div class="block">
+                <h3>Materiał wideo</h3>
+                <div class="video-frame">
+                    <iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ"
+                            title="Wprowadzenie do linorytu" allowfullscreen loading="lazy"></iframe>
+                </div>
+            </div>
+
+            <div class="block">
+                <h3>Galeria</h3>
+                <div class="gallery">
+                    <figure>
+                        <img src="https://picsum.photos/seed/linoleum1/600/450" alt="Mata linoleum i dłuta" />
+                        <figcaption>Mata linoleum i komplet dłutek do linorytu.</figcaption>
+                    </figure>
+                    <figure>
+                        <img src="https://picsum.photos/seed/linoleum2/600/450" alt="Wycinanie wzoru" />
+                        <figcaption>Wycinanie wzoru w macie linoleum.</figcaption>
+                    </figure>
+                    <figure>
+                        <img src="https://picsum.photos/seed/linoleum3/600/450" alt="Odbitki na papierze" />
+                        <figcaption>Gotowe odbitki suszące się na papierze.</figcaption>
+                    </figure>
+                </div>
+            </div>
+
+            <div class="block">
+                <h3>Lista materiałów</h3>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                        <tr><th>Zdjęcie</th><th>Materiał</th><th>Ilość</th><th>Zapewniam</th></tr>
+                        </thead>
+                        <tbody>
+                        <tr><td><img class="mat-thumb" src="https://picsum.photos/seed/mat-linoleum/120/120" alt="Linoleum" /></td><td>Linoleum / linoryt</td><td>1 arkusz</td><td><span class="pill yes">Tak</span></td></tr>
+                        <tr><td><img class="mat-thumb" src="https://picsum.photos/seed/mat-dlutka/120/120" alt="Dłutka do linorytu" /></td><td>Dłutka do linorytu</td><td>komplet</td><td><span class="pill yes">Tak</span></td></tr>
+                        <tr><td><img class="mat-thumb" src="https://picsum.photos/seed/mat-farba/120/120" alt="Farba drukarska" /></td><td>Farba drukarska</td><td>kilka kolorów</td><td><span class="pill yes">Tak</span></td></tr>
+                        <tr><td><img class="mat-thumb" src="https://picsum.photos/seed/mat-walek/120/120" alt="Wałek do farby" /></td><td>Wałek do farby</td><td>1 szt.</td><td><span class="pill yes">Tak</span></td></tr>
+                        <tr><td><img class="mat-thumb" src="https://picsum.photos/seed/mat-papier/120/120" alt="Papier do odbitek" /></td><td>Papier do odbitek</td><td>5 arkuszy</td><td><span class="pill yes">Tak</span></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="block">
+                <h3>Polecane sklepy</h3>
+                <div class="shops">
+                    <a class="shop" href="https://www.swiatgrafiki.pl" target="_blank" rel="noopener">
+                        <span class="shop-ico">🖨️</span>
+                        <span class="shop-meta">Świat Grafiki<small>Linoleum i dłuta</small></span>
+                    </a>
+                    <a class="shop" href="https://www.farbygraficzne.pl" target="_blank" rel="noopener">
+                        <span class="shop-ico">🎨</span>
+                        <span class="shop-meta">Farby Graficzne<small>Farby drukarskie</small></span>
+                    </a>
+                    <a class="shop" href="https://www.linoryt.pl" target="_blank" rel="noopener">
+                        <span class="shop-ico">🪚</span>
+                        <span class="shop-meta">Narzędzia Linoryt<small>Wałki i dłutka</small></span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============ WYSZYWANIE ============ -->
+    <section id="wyszywanie" class="section">
+        <div class="wrap page">
+            <span class="eyebrow">Zajęcia</span>
+            <h2>Wyszywanie</h2>
+            <p class="lead">Haft dla relaksu i wyciszenia. Poznamy podstawowe ściegi ozdobne, nauczymy się przenosić
+                wzór na tkaninę i wyhaftujemy własny kolorowy motyw naciągnięty w tamborku.</p>
+
+            <div class="block">
+                <h3>Materiał wideo</h3>
+                <div class="video-frame">
+                    <iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ"
+                            title="Wprowadzenie do haftu" allowfullscreen loading="lazy"></iframe>
+                </div>
+            </div>
+
+            <div class="block">
+                <h3>Galeria</h3>
+                <div class="gallery">
+                    <figure>
+                        <img src="https://picsum.photos/seed/wyszywanie1/600/450" alt="Kolorowe muliny" />
+                        <figcaption>Kolorowe muliny gotowe do haftu.</figcaption>
+                    </figure>
+                    <figure>
+                        <img src="https://picsum.photos/seed/wyszywanie2/600/450" alt="Robótka w tamborku" />
+                        <figcaption>Motyw powstający w tamborku, ścieg po ściegu.</figcaption>
+                    </figure>
+                    <figure>
+                        <img src="https://picsum.photos/seed/wyszywanie3/600/450" alt="Gotowy haft" />
+                        <figcaption>Efekt końcowy: kolorowy, ręcznie wyszyty motyw.</figcaption>
+                    </figure>
+                </div>
+            </div>
+
+            <div class="block">
+                <h3>Lista materiałów</h3>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                        <tr><th>Zdjęcie</th><th>Materiał</th><th>Ilość</th><th>Zapewniam</th></tr>
+                        </thead>
+                        <tbody>
+                        <tr><td><img class="mat-thumb" src="https://picsum.photos/seed/mat-kanwa/120/120" alt="Kanwa" /></td><td>Kanwa / tkanina lniana</td><td>1 kawałek</td><td><span class="pill yes">Tak</span></td></tr>
+                        <tr><td><img class="mat-thumb" src="https://picsum.photos/seed/mat-muliny/120/120" alt="Muliny" /></td><td>Muliny (nici do haftu)</td><td>zestaw kolorów</td><td><span class="pill yes">Tak</span></td></tr>
+                        <tr><td><img class="mat-thumb" src="https://picsum.photos/seed/mat-tamborek/120/120" alt="Tamborek" /></td><td>Tamborek</td><td>1 szt.</td><td><span class="pill yes">Tak</span></td></tr>
+                        <tr><td><img class="mat-thumb" src="https://picsum.photos/seed/mat-iglyhaft/120/120" alt="Igły do haftu" /></td><td>Igły do haftu</td><td>komplet</td><td><span class="pill yes">Tak</span></td></tr>
+                        <tr><td><img class="mat-thumb" src="https://picsum.photos/seed/mat-nozyczkinici/120/120" alt="Nożyczki do nici" /></td><td>Nożyczki do nici</td><td>1 szt.</td><td><span class="pill no">Weź swoje</span></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="block">
+                <h3>Polecane sklepy</h3>
+                <div class="shops">
+                    <a class="shop" href="https://www.muliny.pl" target="_blank" rel="noopener">
+                        <span class="shop-ico">🪡</span>
+                        <span class="shop-meta">Muliny.pl<small>Nici do haftu</small></span>
+                    </a>
+                    <a class="shop" href="https://www.kanwainic.pl" target="_blank" rel="noopener">
+                        <span class="shop-ico">🌸</span>
+                        <span class="shop-meta">Kanwa i Nić<small>Kanwy i tamborki</small></span>
+                    </a>
+                    <a class="shop" href="https://www.haftstudio.pl" target="_blank" rel="noopener">
+                        <span class="shop-ico">✨</span>
+                        <span class="shop-meta">Haft Studio<small>Wzory i zestawy</small></span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+</main>
+
+<!-- ============ STOPKA ============ -->
+<footer>
+    <div class="wrap">
+        <span>© <span id="year"></span> Pracownia Rękodzieła — zajęcia dla znajomych 💜</span>
+        <span>Kontakt: <a href="mailto:kontakt@przyklad.pl">kontakt@przyklad.pl</a></span>
+    </div>
+</footer>
+
+<!-- ============ POWIĘKSZENIE ZDJĘCIA (LIGHTBOX) ============ -->
+<div class="lightbox" id="lightbox" aria-hidden="true">
+    <button class="lb-close" type="button" aria-label="Zamknij">✕</button>
+    <img src="" alt="" />
+</div>
+
+<script>
+    /* Przełączanie zakładek (prosta „SPA” bez przeładowania strony) */
+    const tabButtons = document.querySelectorAll('[data-tab]');
+    const sections   = document.querySelectorAll('.section');
+    const navButtons = document.querySelectorAll('.tab-btn');
+
+    function showSection(id) {
+        sections.forEach(s => s.classList.toggle('active', s.id === id));
+        navButtons.forEach(b => b.classList.toggle('active', b.dataset.tab === id));
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        history.replaceState(null, '', '#' + id);
+    }
+
+    tabButtons.forEach(el => {
+        el.addEventListener('click', () => showSection(el.dataset.tab));
+    });
+
+    /* Otwarcie właściwej zakładki po odświeżeniu (np. #ceramika) */
+    const start = location.hash.replace('#', '');
+    if (start && document.getElementById(start)) showSection(start);
+
+    /* Powiększenie zdjęć materiałów (lightbox) */
+    const lightbox = document.getElementById('lightbox');
+    const lightboxImg = lightbox.querySelector('img');
+
+    function openLightbox(src, alt) {
+        lightboxImg.src = src;
+        lightboxImg.alt = alt || '';
+        lightbox.classList.add('open');
+        lightbox.setAttribute('aria-hidden', 'false');
+    }
+    function closeLightbox() {
+        lightbox.classList.remove('open');
+        lightbox.setAttribute('aria-hidden', 'true');
+        lightboxImg.src = '';
+    }
+
+    document.querySelectorAll('.mat-thumb').forEach(img => {
+        img.addEventListener('click', () => {
+            const bigSrc = img.src.replace(/\/\d+\/\d+(\?.*)?$/, '/1000/1000');
+            openLightbox(bigSrc, img.alt);
+        });
+    });
+    lightbox.addEventListener('click', closeLightbox);
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbox(); });
+
+    /* Rok w stopce */
+    document.getElementById('year').textContent = new Date().getFullYear();
+</script>
+
+</body>
+</html>
